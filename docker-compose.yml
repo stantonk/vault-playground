@@ -12,7 +12,8 @@ services:
   mysql:
     image: mysql:5.7
     environment:
-      MYSQL_ROOT_PASSWORD: mysql-root
+      # matches vault tutorial
+      MYSQL_ROOT_PASSWORD: mysql
       MYSQL_DATABASE: mydb
     ports:
       - "3306:3306"
