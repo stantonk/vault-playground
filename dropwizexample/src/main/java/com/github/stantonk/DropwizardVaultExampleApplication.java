@@ -17,6 +17,9 @@ import java.util.Map;
 public class DropwizardVaultExampleApplication extends Application<DropwizardVaultExampleConfiguration> {
     private static final Logger logger = LoggerFactory.getLogger(DropwizardVaultExampleApplication.class);
 
+    static final String role_id = "66bce093-45f5-814f-6d27-46efafee75bf";
+    static final String secret_id = "971db68e-d146-510b-4729-6fdfe403efed";
+
     public static void main(final String[] args) throws Exception {
         new DropwizardVaultExampleApplication().run(args);
     }
@@ -34,6 +37,8 @@ public class DropwizardVaultExampleApplication extends Application<DropwizardVau
     @Override
     public void run(final DropwizardVaultExampleConfiguration configuration,
                     final Environment environment) throws InterruptedException {
+
+
         VaultConfig config = null;
         try {
             config = new VaultConfig()
@@ -49,10 +54,8 @@ public class DropwizardVaultExampleApplication extends Application<DropwizardVau
         }
         Vault vault = new Vault(config);
 
-        String roleId = "2ad3264a-af8e-103b-236d-e60b740185d2";
-        String secretId = "06b47e30-712f-2c11-6ccb-224e9ed5f394";
         try {
-            String token = vault.auth().loginByAppRole("approle", roleId, secretId).getAuthClientToken();
+            String token = vault.auth().loginByAppRole("approle", role_id, secret_id).getAuthClientToken();
         } catch (VaultException e) {
             logger.error("couldn't login by AppRole to vault {}", e.getMessage(), e);
             System.exit(1);
@@ -71,10 +74,15 @@ public class DropwizardVaultExampleApplication extends Application<DropwizardVau
                 System.exit(1);
             }
             logger.info("temporaryDatabaseCreds = {}", temporaryDatabaseCreds.getData());
+            Map<String, String> creds = temporaryDatabaseCreds.getData();
+
             DBI dbi = new DBI("jdbc:mysql://127.0.0.1:3306/mydb",
                     temporaryDatabaseCreds.getData().get("username"), temporaryDatabaseCreds.getData().get("password"));
-            List<Map<String, Object>> maps = dbi.withHandle(h -> h.select("SELECT 1"));
-            logger.info("query results= {}", maps);
+            List<Map<String, Object>> cars = dbi.withHandle(h -> h.select("SELECT * from Cars;"));
+            logger.info("---- Creds used username={} password={} ----", creds.get("username"), creds.get("password"));
+            for (Map<String, Object> car : cars) {
+                logger.info("{}", car);
+            }
 
             Thread.sleep(5000l);
         }

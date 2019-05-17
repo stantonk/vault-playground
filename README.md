@@ -58,3 +58,27 @@ vault read auth/approle/role/jenkins/role-id
 # copy secret_id to java program
 vault write -f auth/approle/role/jenkins/secret-id
 ```
+
+# borrow some test data for the docker mysql container from: http://zetcode.com/db/jdbi/
+
+```
+cat << EOF > cars_mysql.sql
+DROP TABLE IF EXISTS Cars;
+CREATE TABLE Cars(Id INT PRIMARY KEY AUTO_INCREMENT, 
+                  Name TEXT, Price INT) ENGINE=InnoDB;
+                  
+INSERT INTO Cars(Name, Price) VALUES('Audi', 52642);
+INSERT INTO Cars(Name, Price) VALUES('Mercedes', 57127);
+INSERT INTO Cars(Name, Price) VALUES('Skoda', 9000);
+INSERT INTO Cars(Name, Price) VALUES('Volvo', 29000);
+INSERT INTO Cars(Name, Price) VALUES('Bentley', 350000);
+INSERT INTO Cars(Name, Price) VALUES('Citroen', 21000);
+INSERT INTO Cars(Name, Price) VALUES('Hummer', 41400);
+INSERT INTO Cars(Name, Price) VALUES('Volkswagen', 21600);
+EOF
+```
+
+# watch vault making new users..
+```
+while true; do mysql --skip-column-names -u root -h 127.0.0.1 -pmysql -f < <(echo "select user from mysql.user;") | grep my-role; sleep 1; done
+```

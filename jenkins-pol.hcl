@@ -3,7 +3,7 @@ path "auth/approle/login" {
   capabilities = [ "create", "read" ]
 }
 
-# Read test data
+# Read mysql dynamic creds
 path "database/creds/my-role" {
   capabilities = [ "read" ]
 }
